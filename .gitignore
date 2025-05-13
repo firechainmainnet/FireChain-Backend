@@ -1,0 +1,17 @@
+# Ignorar o diretório de build do Rust
+/target/
+
+# Ignorar lockfile se for um projeto de biblioteca (opcional)
+/Cargo.lock
+
+# Arquivos temporários do VS Code
+.vscode/
+*.log
+*.tmp
+
+# Dumps e backups
+*.wallet
+*.json
+
+# Arquivos de teste temporários
+*.test.*

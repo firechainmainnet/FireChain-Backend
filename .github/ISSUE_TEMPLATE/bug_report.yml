@@ -1,0 +1,36 @@
+name: 🐞 Bug Report
+description: Algo não está funcionando como deveria? Relate aqui.
+title: "[BUG] "
+labels: ["bug", "triagem"]
+body:
+  - type: textarea
+    attributes:
+      label: Descrição do Problema
+      description: O que está errado? Seja claro e objetivo.
+      placeholder: "Quando tento derivar HD[1], retorna erro XYZ..."
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Reproduzir
+      description: Passos para reproduzir o bug.
+      placeholder: |
+        1. Ir para '...'
+        2. Clicar em '...'
+        3. Ver erro
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: UID ou Wallet ID (se aplicável)
+      description: Ajuda a rastrear se for um bug específico de dados
+
+  - type: dropdown
+    attributes:
+      label: Ambiente
+      options:
+        - Produção
+        - Teste local
+        - Outro

@@ -1,0 +1,22 @@
+name: 💡 Feature Request
+description: Sugira uma melhoria ou nova funcionalidade.
+title: "[SUGESTÃO] "
+labels: ["enhancement", "feedback"]
+body:
+  - type: textarea
+    attributes:
+      label: Qual a proposta?
+      description: O que você gostaria de ver no projeto?
+      placeholder: "Poder derivar múltiplos HDs em lote..."
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Por que isso é importante?
+      description: Qual valor essa feature traria?
+
+  - type: input
+    attributes:
+      label: Alguma referência externa?
+      description: Link de inspiração, outro projeto, doc...

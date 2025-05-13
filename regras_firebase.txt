@@ -1,0 +1,34 @@
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        // ✅ Somente o próprio usuário pode LER suas respostas e perfil
+        "responses": {
+          "$resId": {
+            ".read": "auth != null && auth.uid === $uid",
+            ".write": "false"
+          }
+        },
+        "perfil": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": "false"
+        }
+      }
+    },
+    "requests": {
+      "$reqId": {
+        // ✅ Escrita permitida apenas se o UID for o mesmo da autenticação
+        ".read": false,
+        ".write": "auth != null && auth.uid === newData.child('uid').val()",
+        ".validate": "
+          newData.hasChildren(['uid', 'action']) &&
+          newData.child('uid').isString() &&
+          newData.child('action').isString() &&
+          newData.child('uid').val().length > 0 &&
+          newData.child('action').val().length >= 3 &&
+          newData.child('action').val().length <= 32
+        "
+      }
+    }
+  }
+}
