@@ -1,11 +1,19 @@
+// src/handlers/wallet/deriveAddress.js
 import { db } from '../../lib/firebase.js';
 import { runCli } from '../../lib/walletCli.js';
-import { logSuccess, logError } from '../../lib/utils.js';
 import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
 
+import { ensureUid, ensurePassword, ensureWalletId, ensureHdIndex } from '../../lib/validator.js';
+import { logSuccess, logError } from '../../lib/logger.js';
+
 export async function deriveAddress(uid, walletId, senha, index) {
+  ensureUid(uid);
+  ensureWalletId(walletId);
+  ensurePassword(senha);
+  ensureHdIndex(index);
+
   const walletRef = db.ref(`users/${uid}/wallets/${walletId}`);
   const snap = await walletRef.get();
   if (!snap.exists()) throw new Error('Wallet não encontrada');
@@ -14,7 +22,6 @@ export async function deriveAddress(uid, walletId, senha, index) {
   const walletJson = wallet?.json;
   if (!walletJson) throw new Error('Wallet HD sem json base. Derivação não permitida.');
 
-  // ❌ Evita sobrescrita: verifica se índice já existe
   const derivedRef = db.ref(`users/${uid}/wallets/${walletId}/derived/${index}`);
   const exists = (await derivedRef.get()).exists();
   if (exists) throw new Error(`HD[${index}] já derivado anteriormente.`);
@@ -34,7 +41,6 @@ export async function deriveAddress(uid, walletId, senha, index) {
       unsafe_dump: true
     });
 
-    // ✅ Salvar derivação no histórico
     await derivedRef.set({
       address: derivado.address,
       public_key: derivado.public_key,
@@ -42,7 +48,8 @@ export async function deriveAddress(uid, walletId, senha, index) {
       derivadoEm: Date.now()
     });
 
-    logSuccess(`HD[${index}] derivado e salvo com sucesso`, derivado.address);
+    logSuccess(`HD[${index}] derivado com sucesso`, uid);
+
     return {
       status: 'ok',
       hd_index: index,
@@ -50,7 +57,7 @@ export async function deriveAddress(uid, walletId, senha, index) {
       public_key: derivado.public_key
     };
   } catch (err) {
-    logError(`Erro ao derivar HD[${index}]: ${err.message}`);
+    logError(`Erro ao derivar HD[${index}]: ${err.message}`, uid);
     throw new Error('Erro ao derivar endereço: senha incorreta ou wallet inválida');
   } finally {
     await fs.unlink(tempJsonPath).catch(() => {});

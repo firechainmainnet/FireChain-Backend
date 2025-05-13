@@ -1,10 +1,14 @@
+// src/handlers/wallet/listWallets.js
 import { db } from '../../lib/firebase.js';
-import { logSuccess } from '../../lib/utils.js';
+import { ensureUid } from '../../lib/validator.js';
+import { logSuccess } from '../../lib/logger.js';
 
 /**
  * Lista todas as wallets públicas + derivadas do usuário
  */
 export async function listWallets(uid) {
+  ensureUid(uid);
+
   const ref = db.ref(`users/${uid}/wallets`);
   const snap = await ref.get();
 
@@ -26,10 +30,15 @@ export async function listWallets(uid) {
       address: data.address,
       hd_index: data.hd_index ?? null,
       criadoEm: data.criadoEm ?? null,
-      derived // ✅ adicionado
+      derived
     });
   }
 
-  logSuccess(`Listadas ${wallets.length} wallets para ${uid}`);
-  return { status: 'ok', count: wallets.length, wallets };
+  logSuccess(`Listagem de ${wallets.length} wallet(s) retornada`, uid);
+
+  return {
+    status: 'ok',
+    count: wallets.length,
+    wallets
+  };
 }

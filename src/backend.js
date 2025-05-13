@@ -1,14 +1,10 @@
-// src/backend.js — FireChain Backend com escuta única, antiflood e modularização 🔥
-
 import { db } from './lib/firebase.js';
-import { logInfo, logError } from './lib/utils.js';
+import { logInfo, logError, logWarn } from './lib/logger.js';
 import { checkFlood, setAlerted } from './lib/antiflood.js';
 import { processRequest } from './handlers/processRequest.js';
 import { cleanOrphans } from './cleanup/cleanOrphans.js';
+import { isDuplicate } from './lib/requestCache.js';
 
-// ------------------------------------------------------------------
-// INICIALIZAÇÃO DO SISTEMA
-// ------------------------------------------------------------------
 logInfo('🚀 FireChain Backend inicializando...');
 await cleanOrphans();
 
@@ -19,7 +15,7 @@ requestsRef.on('child_added', async (snap) => {
   const data = snap.val();
 
   if (!data || typeof data !== 'object') {
-    logError(`Requisição malformada: ${reqId}`);
+    logWarn(`Requisição malformada: ${reqId}`);
     await snap.ref.remove();
     return;
   }
@@ -33,21 +29,28 @@ requestsRef.on('child_added', async (snap) => {
     return;
   }
 
+  // Proteção antiflood
   const flood = checkFlood(uid);
-
   if (!flood.allowed) {
     if (flood.alert) {
-      await resRef.set({ erro: '⚠️ Limite de requisições excedido. Tente novamente em alguns segundos.' });
-      setTimeout(() => resRef.remove(), 15_000);
+      await resRef.set({ erro: '⚠️ Limite de requisições excedido. Aguarde.' });
+      setTimeout(() => resRef.remove(), 15000);
       setAlerted(uid);
     }
     await snap.ref.remove();
     return;
   }
 
+  // Proteção contra duplicadas
+  if (isDuplicate(uid, action, data)) {
+    await resRef.set({ erro: '⏱️ Requisição duplicada. Aguarde e tente novamente.' });
+    await snap.ref.remove();
+    logWarn(`Requisição duplicada ignorada: ${uid}/${action}`);
+    return;
+  }
+
   try {
     logInfo(`📥 Requisição recebida [${uid}/${reqId}] — Ação: ${action}`);
-
     const resposta = await processRequest(data, reqId);
     await resRef.set({ ...resposta, criadoEm: Date.now() });
 
@@ -55,10 +58,10 @@ requestsRef.on('child_added', async (snap) => {
       resRef.remove().then(() => {
         logInfo(`🕒 Resposta expirada e removida: ${uid}/${reqId}`);
       });
-    }, 15_000);
+    }, 15000);
   } catch (err) {
     await resRef.set({ erro: err.message });
-    logError(`Erro ao processar [${reqId}]: ${err.message}`);
+    logError(`Erro ao processar [${reqId}]: ${err.message}`, uid);
   } finally {
     await snap.ref.remove();
   }
