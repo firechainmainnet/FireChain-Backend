@@ -1,30 +1,36 @@
-// src/handlers/wallet/deriveAddress.js
-import { db } from '../../lib/firebase.js';
-import { runCli } from '../../lib/walletCli.js';
+// src/handlers/wallet/derive.js
+import { db } from '../../config/firebase.js';
+import { runCli } from '../../core/walletCli.js';
 import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
 
-import { ensureUid, ensurePassword, ensureWalletId, ensureHdIndex } from '../../lib/validator.js';
-import { logSuccess, logError } from '../../lib/logger.js';
+import {
+  ensureUid,
+  ensurePassword,
+  ensureWalletId,
+  ensureHdIndex
+} from '../../core/validator.js';
 
-export async function deriveAddress(uid, walletId, senha, index) {
+import { logSuccess, logError } from '../../core/logger.js';
+
+export async function derive(uid, walletId, senha, index) {
   ensureUid(uid);
   ensureWalletId(walletId);
   ensurePassword(senha);
   ensureHdIndex(index);
 
   const walletRef = db.ref(`users/${uid}/wallets/${walletId}`);
-  const snap = await walletRef.get();
-  if (!snap.exists()) throw new Error('Wallet não encontrada');
+  const walletSnap = await walletRef.get();
+  if (!walletSnap.exists()) throw new Error('Wallet não encontrada');
 
-  const wallet = snap.val();
+  const wallet = walletSnap.val();
   const walletJson = wallet?.json;
   if (!walletJson) throw new Error('Wallet HD sem json base. Derivação não permitida.');
 
   const derivedRef = db.ref(`users/${uid}/wallets/${walletId}/derived/${index}`);
-  const exists = (await derivedRef.get()).exists();
-  if (exists) throw new Error(`HD[${index}] já derivado anteriormente.`);
+  const alreadyDerived = (await derivedRef.get()).exists();
+  if (alreadyDerived) throw new Error(`HD[${index}] já derivado anteriormente.`);
 
   const tempDir = path.join(os.tmpdir(), 'firechain');
   await fs.mkdir(tempDir, { recursive: true });
@@ -45,7 +51,12 @@ export async function deriveAddress(uid, walletId, senha, index) {
       address: derivado.address,
       public_key: derivado.public_key,
       private_key: derivado.private_key,
-      derivadoEm: Date.now()
+      derivadoEm: Date.now(),
+      saldos: {
+        FIRE: 0,
+        BRL: 0,
+        USDT: 0
+      }
     });
 
     logSuccess(`HD[${index}] derivado com sucesso`, uid);

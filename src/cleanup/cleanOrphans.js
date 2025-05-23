@@ -1,6 +1,6 @@
 // src/cleanup/cleanOrphans.js
-import { db } from '../lib/firebase.js';
-import { logInfo, logSuccess, logWarn } from '../lib/logger.js';
+import { db } from '../config/firebase.js';
+import { logInfo, logSuccess, logWarn } from '../core/logger.js';
 
 /**
  * 🧼 Limpa requisições e respostas órfãs do Firebase RTDB

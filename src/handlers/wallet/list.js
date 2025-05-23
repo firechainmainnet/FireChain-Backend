@@ -1,12 +1,9 @@
-// src/handlers/wallet/listWallets.js
-import { db } from '../../lib/firebase.js';
-import { ensureUid } from '../../lib/validator.js';
-import { logSuccess } from '../../lib/logger.js';
+// src/handlers/wallet/list.js
+import { db } from '../../config/firebase.js';
+import { ensureUid } from '../../core/validator.js';
+import { logSuccess } from '../../core/logger.js';
 
-/**
- * Lista todas as wallets públicas + derivadas do usuário
- */
-export async function listWallets(uid) {
+export async function list(uid) {
   ensureUid(uid);
 
   const ref = db.ref(`users/${uid}/wallets`);

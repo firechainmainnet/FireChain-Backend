@@ -1,11 +1,13 @@
-import { db } from './lib/firebase.js';
-import { logInfo, logError, logWarn } from './lib/logger.js';
-import { checkFlood, setAlerted } from './lib/antiflood.js';
-import { processRequest } from './handlers/processRequest.js';
+// src/backend.js
+import 'dotenv/config';
+import { db } from './config/firebase.js';
+import { logInfo, logError, logWarn } from './core/logger.js';
+import { checkFlood, setAlerted } from './core/antiflood.js';
+import { isDuplicate } from './core/requestCache.js';
+import { firechainQueue } from './queue/queue.js';
 import { cleanOrphans } from './cleanup/cleanOrphans.js';
-import { isDuplicate } from './lib/requestCache.js';
 
-logInfo('🚀 FireChain Backend inicializando...');
+logInfo('🚀 FireChain Producer inicializando...');
 await cleanOrphans();
 
 const requestsRef = db.ref('requests');
@@ -29,7 +31,6 @@ requestsRef.on('child_added', async (snap) => {
     return;
   }
 
-  // Proteção antiflood
   const flood = checkFlood(uid);
   if (!flood.allowed) {
     if (flood.alert) {
@@ -41,7 +42,6 @@ requestsRef.on('child_added', async (snap) => {
     return;
   }
 
-  // Proteção contra duplicadas
   if (isDuplicate(uid, action, data)) {
     await resRef.set({ erro: '⏱️ Requisição duplicada. Aguarde e tente novamente.' });
     await snap.ref.remove();
@@ -50,21 +50,14 @@ requestsRef.on('child_added', async (snap) => {
   }
 
   try {
-    logInfo(`📥 Requisição recebida [${uid}/${reqId}] — Ação: ${action}`);
-    const resposta = await processRequest(data, reqId);
-    await resRef.set({ ...resposta, criadoEm: Date.now() });
-
-    setTimeout(() => {
-      resRef.remove().then(() => {
-        logInfo(`🕒 Resposta expirada e removida: ${uid}/${reqId}`);
-      });
-    }, 15000);
+    logInfo(`📥 Enfileirando job para [${uid}/${reqId}] — Ação: ${action}`);
+    await firechainQueue.add('processar', { reqId, data });
   } catch (err) {
-    await resRef.set({ erro: err.message });
-    logError(`Erro ao processar [${reqId}]: ${err.message}`, uid);
+    logError(`Erro ao enfileirar job: ${err.message}`, uid);
+    await resRef.set({ erro: 'Erro interno ao tentar processar. Tente novamente.' });
   } finally {
     await snap.ref.remove();
   }
 });
 
-logInfo('✅ Backend pronto e escutando novas requisições...');
+logInfo('✅ Producer pronto e escutando novas requisições...');

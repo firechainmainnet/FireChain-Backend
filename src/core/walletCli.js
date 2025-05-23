@@ -1,6 +1,6 @@
 // src/lib/walletCli.js
 import { spawn } from 'child_process';
-import { logInfo, logError, logWarn } from './logger.js';
+import { logInfo, logError, logWarn } from '../core/logger.js';
 import path from 'path';
 
 const CLI_PATH = 'D:/blockchain/fire-wallet/target/debug/firechain_wallet.exe'; // ajuste conforme necessário

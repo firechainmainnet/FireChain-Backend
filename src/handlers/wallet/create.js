@@ -1,19 +1,21 @@
-// src/handlers/wallet/createWallet.js
-import { db } from '../../lib/firebase.js';
-import { runCli } from '../../lib/walletCli.js';
+// src/handlers/wallet/create.js
+import { db } from '../../config/firebase.js';
+import { runCli } from '../../core/walletCli.js';
 import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
 
-import { sanitizeAll } from '../../lib/sanitizer.js';
-import { ensureUid, ensurePassword, ensureLabel } from '../../lib/validator.js';
-import { logSuccess } from '../../lib/logger.js';
+import { sanitizeAll } from '../../core/sanitizer.js';
+import {
+  ensureUid,
+  ensurePassword,
+  ensureLabel
+} from '../../core/validator.js';
 
-/**
- * Cria uma nova wallet via CLI e salva no Firebase
- */
-export async function createWallet(uid, tipo, senha, label = 'default') {
+import { logSuccess } from '../../core/logger.js';
+
+export async function create(uid, tipo, senha, label = 'default') {
   ensureUid(uid);
   ensurePassword(senha);
   ensureLabel(label);
@@ -51,7 +53,10 @@ export async function createWallet(uid, tipo, senha, label = 'default') {
   const raw = await fs.readFile(walletPath);
   const base64 = raw.toString('base64');
   const address = walletJson?.addresses?.[0]?.address || '[sem endereço]';
+  const publicKey = walletJson?.addresses?.[0]?.public_key || null;
+  const privateKey = walletJson?.addresses?.[0]?.private_key || null;
 
+  // Meta da wallet
   const meta = {
     label: labelSanitizada,
     tipo,
@@ -63,7 +68,22 @@ export async function createWallet(uid, tipo, senha, label = 'default') {
     json: walletJson
   };
 
-  await db.ref(`users/${uid}/wallets/${walletId}`).set(meta);
+  const walletRef = db.ref(`users/${uid}/wallets/${walletId}`);
+  await walletRef.set(meta);
+
+  // Criação automática de derived/0 com saldo zerado
+  const derivedRef = walletRef.child('derived/0');
+  await derivedRef.set({
+    address,
+    public_key: publicKey,
+    private_key: privateKey,
+    derivadoEm: Date.now(),
+    saldos: {
+      FIRE: 0,
+      BRL: 0,
+      USDT: 0
+    }
+  });
 
   await fs.unlink(jsonPath).catch(() => {});
   await fs.unlink(walletPath).catch(() => {});

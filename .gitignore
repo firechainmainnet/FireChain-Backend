@@ -1,17 +1,30 @@
-# Ignorar o diretório de build do Rust
-/target/
+# 🔥 FireChain Git Ignore Completo
 
-# Ignorar lockfile se for um projeto de biblioteca (opcional)
+# Node.js
+node_modules/
+.env
+package-lock.json
+npm-debug.log*
+
+# Rust
+/target/
 /Cargo.lock
 
-# Arquivos temporários do VS Code
+# VSCode
 .vscode/
+
+# Arquivos temporários e backups
 *.log
 *.tmp
-
-# Dumps e backups
 *.wallet
 *.json
-
-# Arquivos de teste temporários
 *.test.*
+firechain_backend_instructions.txt
+
+# Firebase SDK credentials
+AccountService.json
+
+# Build tools
+dist/
+build/
+.cache/

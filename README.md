@@ -1,170 +1,183 @@
-# 🔥 FireChain – Backend + Wallet CLI + Frontend Reativo e Seguro (v2.0.2)
 
-Este repositório entrega **a arquitetura completa da FireChain**, combinando:
+# 🔥 FireChain v2.0.3 — Backend Modular, CLI-Driven, Reativo e Escalável com Segurança de Produto
 
-- 🔐 Backend seguro com validação, sanitização e execução CLI Rust
-- 🔁 Comunicação em tempo real via Firebase RTDB (sem sockets, sem APIs REST)
-- 💻 Frontend funcional para gestão de perfis e carteiras HD
-- 🔧 Integração direta com o CLI [Fire-Wallet-CLI](https://github.com/firechainmainnet/Fire-Wallet-CLI)
-
-> 🧱 Um case real de backend escalável, CLI-driven, e com foco em segurança real.
+**FireChain** é uma arquitetura backend Web3 de última geração.  
+Projetada para escalar, proteger e servir aplicações descentralizadas com **resposta em tempo real, segurança cripto nativa e UX moderna**.
 
 ---
 
-## 🚀 Visão Geral
+## 🧠 Sobre o Projeto
 
-✔️ Backend escuta uma única rota global (`requests/{uid_reqId}`)  
-✔️ Frontend envia ações com autenticação Firebase  
-✔️ CLI Rust executa a segurança real: criação, derivação e criptografia  
-✔️ Requisições são validadas, antifloodadas, e protegidas contra duplicatas  
-✔️ Respostas expiram após 15 segundos (zero cache)
+A FireChain é construída sobre pilares sólidos:
 
----
+- **Executável seguro** com um CLI Rust externo para criar e gerenciar carteiras HD com criptografia real
+- **Requisições em tempo real** e sem latência via Firebase RTDB
+- **Fila distribuída** com BullMQ + Redis para suportar milhares de requisições simultâneas com controle e estabilidade
+- **Frontend reativo** compatível com bots, dashboards ou carteiras web
+- **Validação, antiflood e proteção contra duplicação** nativos, com log profissional
 
-## 📦 O que esse projeto entrega?
-
-### Backend (Node.js + Firebase Admin)
-
-- 🔐 Autenticação por UID com validação forte
-- 🧠 Módulos: `validator.js`, `sanitizer.js`, `requestCache.js`, `logger.js`
-- 🚫 Antiflood (5 reqs por UID a cada 10s)
-- 🔁 Proteção contra requisições duplicadas
-- 🧼 Limpeza automática de responses antigos
-- 📁 Estrutura modular e pronta para escalar
-
-### CLI (compilado via Rust)
-
-- 🆕 Criação de wallets aleatórias ou HD (12/24 palavras)
-- 🔐 Exportação criptografada `.wallet` (AES-256-GCM + Argon2id)
-- 🧠 Derivação HD[N] com imutabilidade
-- 🔎 Descriptografia segura com senha
-- ✅ Modo JSON automatizável
-
-### Frontend (HTML + JS)
-
-- 🔐 Login, criação e atualização de perfil
-- 💼 Criação de wallets + visualização e derivação
-- ⚡ RTDB em tempo real com resposta exibida via toast
-- 📲 Compatível com a nova arquitetura v2.0.2
+Este repositório representa o **núcleo de execução da FireChain**, utilizado para produção de carteiras, derivação HD e operação segura.
 
 ---
 
-## 🧱 Estrutura do Projeto
+## 🔗 Tecnologias Aplicadas
+
+| Camada         | Tecnologia                | Função Principal |
+|----------------|----------------------------|------------------|
+| Backend        | Node.js + Firebase RTDB    | Processamento reativo + producer |
+| Fila           | BullMQ + Redis             | Job queue robusta com retries, delay e escalabilidade |
+| CLI Externo    | Fire-Wallet-CLI (Rust)     | Segurança real, criptografia, derivação |
+| Frontend       | HTML + Firebase JS SDK     | Interface reativa e mínima |
+| Segurança      | AES-256-GCM, Argon2id      | Criptografia forte via Rust |
+| Controle       | Logger customizado         | Log por nível, UID e tempo |
+| Proteção       | Antiflood, duplicatas      | Segurança contra abusos e spams |
+
+---
+
+## 🧱 Estrutura Profissional de Projeto
 
 ```
 firechain-backend/
 ├── src/
-│   ├── backend.js
-│   ├── cleanup/cleanOrphans.js
+│   ├── backend.js                # 🔁 Producer: escuta RTDB e enfileira jobs
+│   ├── worker.js                 # 🧵 Worker: processa jobs com processRequest()
+│   ├── cleanup/
+│   │   └── cleanOrphans.js       # 🧼 Limpa dados expirados e pendentes
 │   ├── handlers/
-│   │   ├── processRequest.js
+│   │   ├── index.js              # 🔀 Roteamento de ações recebidas
+│   │   ├── perfil/
+│   │   │   ├── criar.js
+│   │   │   ├── ver.js
+│   │   │   └── atualizar.js
 │   │   └── wallet/
-│   │       ├── createWallet.js
-│   │       ├── deriveAddress.js
-│   │       ├── listWallets.js
-│   │       └── viewWallet.js
-│   └── lib/
-│       ├── antiflood.js
-│       ├── firebase.js
-│       ├── logger.js
-│       ├── requestCache.js
-│       ├── sanitizer.js
-│       ├── validator.js
-│       └── walletCli.js
-│
-├── public/index.html
-├── public/frontend.js
-├── regras_firebase.txt
+│   │       ├── create.js
+│   │       ├── derive.js
+│   │       ├── list.js
+│   │       └── view.js
+│   ├── queue/
+│   │   └── queue.js              # 🔃 Configuração BullMQ
+│   └── core/
+│       ├── antiflood.js          # Proteção por janela de tempo
+│       ├── logger.js             # Logger com UID e timestamps
+│       ├── requestCache.js       # Proteção contra duplicatas
+│       ├── sanitizer.js          # Sanitização multi-nível
+│       ├── validator.js          # Validação por tipo/limite/estrutura
+│       └── walletCli.js          # Executa Fire-Wallet-CLI
+├── config/
+│   ├── firebase.js               # Firebase Admin SDK init
+│   └── redis.js                  # Conexão BullMQ
+├── public/
+│   ├── index.html
+│   └── frontend.js
 ├── package.json
-├── README.md
-├── CHANGELOG.md
+├── .env
+├── AccountService.json
 ```
 
 ---
 
-## ⚙️ Como Rodar Localmente
+## 🚀 Como Rodar (Windows Local)
 
-### 1. Clonar o projeto e instalar
+### 1. Instale Redis via `.zip`
 
-```bash
-git clone https://github.com/firechainmainnet/firechain-backend.git
-cd firechain-backend
+- Baixe: https://github.com/microsoftarchive/redis/releases
+- Extraia para `C:\Redis`
+- Execute via PowerShell:
+
+```powershell
+cd C:\Redis
+.
+edis-server.exe
+```
+
+### 2. Inicie Backend + Workers
+
+```powershell
+cd D:\blockchain\fire-node
 npm install
+npm run start:producer
+npm run start:workers
 ```
 
-### 2. Adicionar credencial Firebase
+### 3. Integração com Frontends
 
-Coloque o arquivo `AccountService.json` na raiz do projeto.
+A FireChain foi projetada para ser consumida facilmente por qualquer tipo de frontend — React, Vue, mobile (Flutter, React Native), bots, ou extensões.
 
-### 3. Compilar o CLI Rust
+Basta:
+1. Autenticar com Firebase (obter o `uid`)
+2. Escrever uma requisição em `requests/{uid}_req_{timestamp}` com o payload necessário
+3. Observar `users/{uid}/responses/{reqId}` no Firebase RTDB
+4. Renderizar a resposta quando ela chegar
 
-```bash
-git clone https://github.com/firechainmainnet/Fire-Wallet-CLI.git
-cd Fire-Wallet-CLI
-cargo build --release
-```
-
-Atualize o caminho do binário em `src/lib/walletCli.js`:
-
-```js
-const CLI_PATH = 'D:/.../firechain_wallet.exe';
-```
-
-### 4. Iniciar o backend
-
-```bash
-npm start
-```
-
-### 5. Abrir o frontend de testes
-
-Abra o arquivo `public/index.html` no navegador.
+➡️ Como o backend responde automaticamente, a integração é 100% reativa e sem REST.
 
 ---
 
-## 🔒 Segurança Embutida
+## ⚙️ Execução CLI (Fire-Wallet)
+
+- Criação HD random, 12 ou 24 palavras
+- Exportação `.wallet` criptografada (AES-256 + Argon2id)
+- Derivação HD[N] com controle imutável
+- Execução 100% fora do browser
+- Dump JSON seguro para análise
+
+---
+
+## 🔐 Segurança Corporativa Nativa
 
 | Recurso                         | Descrição |
-|---------------------------------|-----------|
-| Antiflood por UID               | 5 requisições por 10 segundos |
-| Requisições duplicadas          | Bloqueadas por fingerprint e UID |
-| Sanitização multi-camada        | HTML, regex, normalização segura |
-| Validações de tipo e estrutura  | UID, senha, índice HD, etc. |
-| Criptografia no Rust (CLI)      | AES-256-GCM + Argon2id |
-| Expiração automática de resposta| Após 15s por padrão |
-| HD[N] imutável e validado       | Derivação única por índice |
+|----------------------------------|-----------|
+| Antiflood                       | 5 ações/10s por UID |
+| Fingerprint anti-duplicação     | TTL 5s por ação/UID |
+| Sanitização profunda            | HTML-safe, trim, normalização |
+| Validação forte                 | UID, senha, índice, label etc. |
+| Expiração de respostas          | Após 15 segundos |
+| CLI com criptografia real       | AES-GCM + Argon2id (Rust) |
+| Modo JSON                       | CLI legível e automatizável |
+| Logging com UID e timestamp     | Para monitoramento em produção |
 
 ---
 
-## 🔧 Ações Suportadas
+## 📦 Actions Suportadas
 
-| Ação                    | Descrição |
-|-------------------------|-----------|
-| `criar_perfil`          | Criação de nome/bio |
-| `ver_perfil`            | Retorna nome e bio |
-| `atualizar_perfil`      | Atualiza nome e bio |
-| `criar_wallet_random`   | Cria wallet aleatória via CLI |
-| `criar_wallet_mnemonic12`| Cria wallet HD (12 palavras) |
-| `criar_wallet_mnemonic24`| Cria wallet HD (24 palavras) |
-| `ver_wallet`            | Descriptografa `.wallet` com senha |
-| `listar_wallets`        | Lista wallets + HDs derivados |
-| `derivar_endereco`      | Deriva endereço HD[N] com proteção contra sobrescrita |
-
----
-
-## 🛠️ Ideal para
-
-- DApps que precisam de segurança real (sem JS-only)
-- Wallets com derivação determinística
-- Backends reativos para múltiplos usuários
-- Bots seguros sem depender de servidores REST
+| Action                     | Finalidade |
+|----------------------------|------------|
+| `criar_perfil`             | Criação segura de perfil |
+| `ver_perfil`               | Retorno estruturado |
+| `atualizar_perfil`         | Edição validada |
+| `criar_wallet_random`      | Wallet randômica |
+| `criar_wallet_mnemonic12`  | HD wallet (12 palavras) |
+| `criar_wallet_mnemonic24`  | HD wallet (24 palavras) |
+| `ver_wallet`               | Descriptografa `.wallet` com senha |
+| `listar_wallets`           | Mostra todas as wallets ativas |
+| `derivar_endereco`         | Deriva HD[N] com verificação única |
 
 ---
 
-## 🛡️ Licença
+## 📈 Ideal para...
 
-MIT — Desenvolvido com foco em segurança, arquitetura e escalabilidade por **[Guilherme Lima](https://www.linkedin.com/in/guilhermelimadev-web3/)**
+- Plataformas Web3 com múltiplos usuários simultâneos
+- Serviços que requerem criptografia fora do browser
+- Interfaces leves com respostas em tempo real
+- Bots e scripts sem backend tradicional
+- Sistemas de carteira com derivação HD real
+- Painéis administrativos ou wallets client-less
 
 ---
 
-**FireChain Backend v2.0.2** — segurança e performance sem atalhos.
+## 👨‍💻 Autor
+
+**Guilherme Lima**  
+Arquiteto Web3, especialista em soluções CLI-driven, criptografia aplicada e infraestrutura descentralizada.  
+🔗 [LinkedIn](https://www.linkedin.com/in/guilhermelimadev-web3/)
+
+---
+
+## 📜 Licença
+
+MIT — Seguro, auditável e open-source para escalar com liberdade.
+
+---
+
+**FireChain v2.0.3 — Arquitetura real para carteiras, DApps e produtos Web3.**  
+🔥 Escalável, modular, e com foco total em segurança e UX.

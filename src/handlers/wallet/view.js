@@ -1,24 +1,25 @@
-// src/handlers/wallet/viewWallet.js
-import { db } from '../../lib/firebase.js';
-import { runCli } from '../../lib/walletCli.js';
+// src/handlers/wallet/view.js
+import { db } from '../../config/firebase.js';
+import { runCli } from '../../core/walletCli.js';
 import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
 
-import { ensureUid, ensureWalletId, ensurePassword } from '../../lib/validator.js';
-import { logSuccess, logError } from '../../lib/logger.js';
+import {
+  ensureUid,
+  ensureWalletId,
+  ensurePassword
+} from '../../core/validator.js';
 
-/**
- * Descriptografa uma wallet salva em base64 (via CLI)
- */
-export async function viewWallet(uid, walletId, senha) {
+import { logSuccess, logError } from '../../core/logger.js';
+
+export async function view(uid, walletId, senha) {
   ensureUid(uid);
   ensureWalletId(walletId);
   ensurePassword(senha);
 
   const walletRef = db.ref(`users/${uid}/wallets/${walletId}`);
   const snap = await walletRef.get();
-
   if (!snap.exists()) throw new Error('Wallet não encontrada');
 
   const stored = snap.val();
