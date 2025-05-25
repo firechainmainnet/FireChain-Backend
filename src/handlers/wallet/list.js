@@ -20,6 +20,7 @@ export async function list(uid) {
     const derivedSnap = await db.ref(`users/${uid}/wallets/${walletId}/derived`).get();
     const derived = derivedSnap.exists() ? derivedSnap.val() : {};
 
+    // ✅ Mantém tudo (inclusive private_key criptografada)
     wallets.push({
       walletId,
       label: data.label,

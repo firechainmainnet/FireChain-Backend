@@ -1,34 +1,34 @@
-/**
- * 📋 FireChain Logger — v2.0.2
- * - Logs padronizados com níveis, timestamps e UID opcional
- * - Fácil integração com logs locais, Firebase ou serviços externos (Datadog, Logtail etc.)
- */
+// src/core/logger.js
+import chalk from 'chalk';
 
-const now = () => new Date().toISOString().replace('T', ' ').split('.')[0];
-
-function format(label, message, uid = null) {
-  const prefix = uid ? `[UID:${uid}]` : '';
-  return `[${now()}] ${label} ${prefix} ${message}`;
+// Gera timestamp formatado (UTC local simplificado)
+function timestamp() {
+  return new Date().toISOString().replace('T', ' ').substring(0, 19);
 }
 
+// Formata mensagens com tipo + UID (opcional)
+export function format(tipo, message, uid = null) {
+  const tag = uid ? `[UID:${uid}]` : '';
+  return `[${timestamp()}] ${tipo} ${tag} ${message}`;
+}
+
+// Logs informativos
 export function logInfo(message, uid = null) {
-  console.log(format('ℹ️ INFO', message, uid));
+  console.log(format(chalk.blue('ℹ️ INFO'), message, uid));
 }
 
 export function logSuccess(message, uid = null) {
-  console.log(format('✅ SUCESSO', message, uid));
+  console.log(format(chalk.green('✅ SUCESSO'), message, uid));
 }
 
 export function logWarn(message, uid = null) {
-  console.warn(format('⚠️ AVISO', message, uid));
+  console.warn(format(chalk.yellow('⚠️ AVISO'), message, uid));
 }
 
 export function logError(message, uid = null) {
-  console.error(format('❌ ERRO', message, uid));
+  console.error(format(chalk.red('❌ ERRO'), message, uid));
 }
 
 export function logDebug(message, uid = null) {
-  if (process.env.NODE_ENV !== 'production') {
-    console.debug(format('🐞 DEBUG', message, uid));
-  }
+  console.debug(format(chalk.cyan('🐞 DEBUG'), message, uid));
 }

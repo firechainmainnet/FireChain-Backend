@@ -11,6 +11,11 @@ import {
   ensurePassword
 } from '../../core/validator.js';
 
+import {
+  deriveKeyFromPassword,
+  decryptWalletBuffer
+} from '../../core/cryptoWallet.js';
+
 import { logSuccess, logError } from '../../core/logger.js';
 
 export async function view(uid, walletId, senha) {
@@ -26,10 +31,21 @@ export async function view(uid, walletId, senha) {
   const base64 = stored?.data;
   if (!base64) throw new Error('Wallet sem dados criptografados');
 
+  const encryptedBuffer = Buffer.from(base64, 'base64');
+  const key = deriveKeyFromPassword(senha, uid);
+
+  let decrypted;
+  try {
+    decrypted = decryptWalletBuffer(encryptedBuffer, key);
+  } catch (err) {
+    logError(`Erro ao descriptografar wallet ${walletId}: ${err.message}`, uid);
+    throw new Error('Senha incorreta ou dados corrompidos');
+  }
+
   const tempDir = path.join(os.tmpdir(), 'firechain');
   await fs.mkdir(tempDir, { recursive: true });
   const tempPath = path.join(tempDir, `${walletId}.wallet`);
-  await fs.writeFile(tempPath, Buffer.from(base64, 'base64'));
+  await fs.writeFile(tempPath, decrypted);
 
   try {
     const response = await runCli({
@@ -47,8 +63,8 @@ export async function view(uid, walletId, senha) {
       wallet: response
     };
   } catch (err) {
-    logError(`Erro ao descriptografar wallet ${walletId}: ${err.message}`, uid);
-    throw new Error('Senha incorreta ou dados corrompidos');
+    logError(`Erro ao processar CLI da wallet ${walletId}: ${err.message}`, uid);
+    throw new Error('Erro interno ao interpretar wallet');
   } finally {
     await fs.unlink(tempPath).catch(() => {});
   }

@@ -13,6 +13,12 @@ import {
   ensureLabel
 } from '../../core/validator.js';
 
+import {
+  deriveKeyFromPassword,
+  encryptWalletBuffer,
+  generateFingerprint
+} from '../../core/cryptoWallet.js';
+
 import { logSuccess } from '../../core/logger.js';
 
 export async function create(uid, tipo, senha, label = 'default') {
@@ -51,18 +57,22 @@ export async function create(uid, tipo, senha, label = 'default') {
   });
 
   const raw = await fs.readFile(walletPath);
-  const base64 = raw.toString('base64');
+  const key = deriveKeyFromPassword(senha, uid);
+  const encrypted = encryptWalletBuffer(raw, key);
+  const fingerprint = generateFingerprint(encrypted);
+  const base64 = encrypted.toString('base64');
+
   const address = walletJson?.addresses?.[0]?.address || '[sem endereço]';
   const publicKey = walletJson?.addresses?.[0]?.public_key || null;
   const privateKey = walletJson?.addresses?.[0]?.private_key || null;
 
-  // Meta da wallet
   const meta = {
     label: labelSanitizada,
     tipo,
     address,
     hd_index: walletJson.hd_index ?? null,
     encrypted: true,
+    fingerprint,
     criadoEm: Date.now(),
     data: base64,
     json: walletJson
@@ -71,9 +81,7 @@ export async function create(uid, tipo, senha, label = 'default') {
   const walletRef = db.ref(`users/${uid}/wallets/${walletId}`);
   await walletRef.set(meta);
 
-  // Criação automática de derived/0 com saldo zerado
-  const derivedRef = walletRef.child('derived/0');
-  await derivedRef.set({
+  await walletRef.child('derived/0').set({
     address,
     public_key: publicKey,
     private_key: privateKey,

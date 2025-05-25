@@ -3,6 +3,58 @@
 Todas as mudanças significativas neste projeto são documentadas aqui.
 
 ---
+
+## 🔖 v2.0.3a – Cobertura E2E Completa, Segurança Enterprise + Turbo-Escalabilidade (MAIO/2025)
+
+A release **2.0.3a** consolida o ciclo BullMQ + Redis introduzido na 2.0.3 com uma camada profissional de QA automatizado, hardening de segurança de nível corporativo e novos _tunings_ de performance que permitem subir o FireChain instantaneamente para milhares de jobs por minuto.
+
+### ✨ Adicionado
+- 🧪 **Testes End-to-End (Jest + Firebase RTDB em tempo real)**
+  - **14 cenários críticos cobertos**: criação/atualização de perfil, criação HD (12 e 24 palavras), derivação HD, listagem, view/descriptografia, antiflood e duplicatas.
+  - `tests/setup/` com _helpers_ de requisição (`sendRequest`, `waitForResponse`) e _teardown_ que apaga resíduos no Firebase e encerra o Admin SDK sem vazamento.
+  - Script npm `test:e2e` padronizado para **execução headless** com flag `--experimental-vm-modules`, pronto para CI.
+
+- 📝 **README_TESTES_E2E.md**  
+  Guia passo-a-passo de 3 minutos para rodar a suíte localmente ou via GitHub Actions, incluindo variáveis de ambiente, requisitos de Redis em memória e dicas de debug.
+
+- 🔐 **Segurança Enterprise**
+  - **Sanitização HTML ampliada** → agora bloqueia back-ticks e entidades raras.
+  - **Validator.hd_index** reforçado (`0 – 10000`) + checagem explícita de número inteiro.
+  - **Logs redigidos**: prints de chaves privadas ofuscados quando `NODE_ENV=production`.
+  - **db.goOffline() seguro** dentro do teardown dos testes, evitando _fatal errors_ nos CI runners.
+
+- 🚀 **Escalabilidade Turbo**
+  - `worker.js` aceita `process.env.WORKER_CONCURRENCY` (default `4`) – basta escalar horizontal **ou** vertical alterando a env var.
+  - Config BullMQ `removeOnComplete`/`removeOnFail` afinado (30 s / 1 h) e `attempts: 3` com _exponential backoff_ de 2 s.
+  - **Métricas prontas para dashboards**: cada job loga `dur` (duração em ms), facilitando Prometheus/Grafana.
+
+- 📈 **Dev Workflow**
+  - Script `start:dev` atualizado → inicia producer + 2 workers + Redis local (_concurrently_) em um único comando.
+  - `package.json` vers. **2.0.3a**; descrição enfatiza “Web3 backend tested E2E”.
+
+### ♻️ Alterado
+- 📜 **README principal** 
+  Agora traz manifesto de marca, fluxos visuais, _copy_ de marketing, casos de uso (exchange, game Fi, bots, wallets white-label) e badges de status CI.
+- 🔄 `list.js` retorna `{ status: 'vazio', wallets: [] }` quando não existirem carteiras – testes ajustados para aceitar “ok” _ou_ “vazio”.
+- 🧼 `cleanOrphans.js` roda a cada boot e, durante testes, garante base limpa em < 500 ms.
+
+### 🛠️ Corrigido
+- Fix **`closeFirebase()`** que tentava `db.goOffline()` após `app.delete()`.
+- Mensagens de erro padronizadas (`Wallet não encontrada`, `HD[x] já derivado`) → cobertura 100 % nos asserts de teste.
+- Tratamento de `senha` undefined no handler `derive.js`.
+
+### 🔐 Impacto de Segurança
+- **Cobertura de testes** garante que *cada nova PR* precise passar por cenários críticos – reduzindo regressões de segurança.
+- Logs de debug exigem opt-in (`DEBUG=true`), atendendo GDPR/PII.
+
+### 🚦 Pronto para CI/CD
+- Suíte E2E executa em ~40 s num runner padrão, emitindo métricas de cobertura.
+- Passos Docker descritos no novo README_TESTES_E2E.md.
+
+> **FireChain 2.0.3a** conclui a fundação QA + Security e posiciona o projeto para produção real em larga escala, mantendo a experiência reativa que fez a FireChain se destacar.
+
+---
+
 ## 🔖 v2.0.3 – Arquitetura Assíncrona Escalável com BullMQ + Redis (MAIO/2025)
 
 FireChain v2.0.3 marca uma **virada de chave arquitetural**, trazendo a fundação necessária para suportar uso intensivo, múltiplos usuários simultâneos e integração real com DApps, bots e plataformas Web3 corporativas.

@@ -12,6 +12,11 @@ import {
   ensureHdIndex
 } from '../../core/validator.js';
 
+import {
+  deriveKeyFromPassword,
+  encryptWalletBuffer
+} from '../../core/cryptoWallet.js';
+
 import { logSuccess, logError } from '../../core/logger.js';
 
 export async function derive(uid, walletId, senha, index) {
@@ -47,10 +52,15 @@ export async function derive(uid, walletId, senha, index) {
       unsafe_dump: true
     });
 
+    // 🔐 Criptografar private_key derivada
+    const key = deriveKeyFromPassword(senha, uid);
+    const encryptedBuffer = encryptWalletBuffer(Buffer.from(derivado.private_key), key);
+    const encryptedPrivateKey = encryptedBuffer.toString('base64');
+
     await derivedRef.set({
       address: derivado.address,
       public_key: derivado.public_key,
-      private_key: derivado.private_key,
+      private_key: encryptedPrivateKey, // agora protegido
       derivadoEm: Date.now(),
       saldos: {
         FIRE: 0,

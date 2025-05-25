@@ -1,5 +1,5 @@
 /**
- * 🔐 FireChain v2.0.2 — Sanitização multi-camada profissional
+ * 🔐 FireChain — Sanitização multi-camada profissional
  * - Aplica trim, limite de tamanho, escape HTML e filtros personalizados
  * - Evita XSS, inputs maliciosos e formatos inválidos
  */

@@ -1,6 +1,5 @@
 /**
  * 🔁 FireChain – Proteção contra requisições duplicadas
- * v2.0.2
  * - Armazena fingerprint temporária por UID + ação + hashPayload
  * - TTL padrão: 5 segundos
  */

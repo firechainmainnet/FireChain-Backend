@@ -1,5 +1,5 @@
 /**
- * ✅ FireChain v2.0.2 – Validador Central
+ * ✅ FireChain – Validador Central
  * - Verifica tipo, presença, formato e limites
  * - Ideal para todas as entradas recebidas nas actions
  */

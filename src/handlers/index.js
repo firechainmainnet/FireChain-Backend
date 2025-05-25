@@ -78,6 +78,22 @@ export async function processRequest(data, reqId) {
       return await derive(uid, walletId, senha, index);
     }
 
+    case 'ver_derivada': {
+      const { walletId, index, senha } = data;
+      ensureWalletId(walletId);
+      ensureHdIndex(index);
+      ensurePassword(senha);
+      const { verDerivada } = await import('./wallet/ver_derivada.js');
+      return await verDerivada(uid, walletId, index, senha);
+    }
+
+    case 'ver_fingerprint': {
+      const { walletId } = data;
+      ensureWalletId(walletId);
+      const { verFingerprint } = await import('./wallet/ver_fingerprint.js');
+      return await verFingerprint(uid, walletId);
+    }
+
     default:
       logWarn(`Ação desconhecida: ${action}`, uid);
       return { erro: 'Ação desconhecida' };

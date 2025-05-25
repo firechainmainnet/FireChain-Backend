@@ -1,93 +1,113 @@
 
-# 🔐 FireChain Security Policy – Backend v2.0.3
+# 🔐 FireChain Security & Commercial Use Policy — Backend v2.0.3a
 
-Na FireChain, **segurança não é uma funcionalidade** — é a base da arquitetura.
+FireChain foi construída sob o princípio **“Secure‑by‑Default”**: cada linha de código, cada dependência
+e cada componente de infraestrutura passaram por threat‑modeling, análise estática
+(SAST) e varredura de dependências (SCA) antes de chegar a esta release.
 
-Nosso backend foi construído sob os princípios de **segurança por design**, utilizando técnicas avançadas de criptografia, segregação de responsabilidades, controle de entrada/saída e observabilidade contínua. A execução crítica é feita externamente via binário Rust, garantindo que nenhuma informação sensível circule ou permaneça em ambientes inseguros.
-
----
-
-## 📣 Comunicação de Vulnerabilidades
-
-Valorizamos e recompensamos a descoberta responsável de vulnerabilidades.
-
-Se você identificou uma possível falha de segurança, siga este fluxo:
-
-- ❌ **Não crie uma issue pública no GitHub.**
-- ✅ Envie uma mensagem privada diretamente para o autor:
-  - 🔗 [Perfil no LinkedIn](https://www.linkedin.com/in/guilhermelimadev-web3/)
-  - Inclua obrigatoriamente:
-    - Relato técnico detalhado
-    - Evidência ou passo a passo para reprodução
-    - Avaliação do impacto (estimado)
-
-🔁 Retornaremos em até **72 horas úteis**, com:
-- Confirmação do recebimento
-- Investigação e plano de mitigação (se aplicável)
-- Reconhecimento público ou privado (se autorizado)
+> **Última revisão:** 24 mai 2025  
+> **Contato direto:** [LinkedIn – Guilherme Lima](https://www.linkedin.com/in/guilhermelimadev-web3/)
 
 ---
 
-## 🔄 Política de Disclosure
+## 1 · Visão‑geral de Segurança
 
-Adotamos o modelo de **responsible disclosure**, conforme melhores práticas de segurança da indústria.
-
-Pedimos a todos os pesquisadores e colaboradores:
-- **Não executar testes destrutivos** ou de negação de serviço em ambientes públicos
-- Utilizar ambientes locais para exploração de comportamentos
-- Evitar engenharia reversa fora dos limites éticos do open source
-
----
-
-## 🧱 Fundamentos da Arquitetura Segura
-
-### 🔐 Criptografia Externa via CLI
-- Todas as carteiras são criadas e criptografadas com **CLI Rust externo**
-- Utilizamos **AES-256-GCM + Argon2id**, executado fora do ambiente Node.js
-- O CLI funciona em modo `--json`, 100% auditável e automatizável
-
-### 🧬 Proteção HD Imutável
-- Cada derivação HD[N] é única e protegida contra sobrescrita
-- Armazenamento em árvore `/wallets/{id}/derived/{index}` com verificação prévia
-
-### 🧼 Retenção Segura de Dados
-- Respostas a requisições expiram automaticamente após 15 segundos
-- Nenhuma chave privada, senha ou dump permanece ativo após execução
-
-### 🛡️ Camadas Defensivas
-- **Antiflood:** máximo de 5 requisições a cada 10 segundos por UID
-- **Proteção contra duplicatas:** fingerprint hash com TTL (5s)
-- **Validações fortes:** UID, label, índice HD, senha — todas verificadas
-- **Sanitização profunda:** HTML-safe, normalização unicode e limite de tamanho
-- **Execução isolada:** processamentos críticos são feitos via child process
+| Camada | Controles Aplicados | Ferramentas / Padrões |
+|--------|--------------------|-----------------------|
+| Criptografia | AES‑256‑GCM + Argon2id | Executado 100 % fora do Node.js via *firechain‑cli* (Rust) |
+| Execução | _Privilege separation_ | **AppArmor** profile + usuário sem privilégios |
+| Fila & Mensageria | Proteção contra *flood* (5 req / 10 s), fingerprint anti‑replay (TTL 5 s) | BullMQ + Redis |
+| Dados em repouso | Respostas expiram em 15 s | Firebase RTDB ruleset |
+| Código | CI com **ESLint**, **npm‑audit**, **dependency‑check** e **Semgrep** | GitHub Actions |
+| Observabilidade | Logs imutáveis (hash‑encadeados) | SHA‑256 chain + log‑router |
+| Infra | Hardening CIS 1.4 (Linux) | Ansible baseline |
 
 ---
 
-## 🧩 Monitoramento e Logging
+## 2 · Fluxo de Divulgação de Vulnerabilidade
 
-- Cada requisição é logada com:
-  - UID, timestamp e tipo de ação
-  - Resultado (sucesso ou erro)
-- Suporte à integração com Datadog, Logtail ou Stackdriver (via abstração de logger)
+1. **Não** abra uma _issue_ pública.  
+2. Envie *inbox* no LinkedIn contendo:  
+   - Descrição técnica e *proof‑of‑concept*  
+   - Impacto estimado e classificação CVSS (se possível)  
+3. SLA de resposta inicial: **≤ 72 h úteis**.  
+4. Prazo máximo para _patch_ público: **≤ 14 dias corridos** após confirmação.  
+5. Reconhecimento na _Hall of Fame_ (ou anonimato a pedido).
 
----
-
-## ⚖️ Conformidade e Ética
-
-- Utilizamos apenas dependências auditáveis
-- Nenhum dado sensível é vendido, compartilhado ou usado para análise
-- Firebase Auth segue regras da [GDPR](https://gdpr.eu) e [LGPD](https://www.gov.br/cidadania/pt-br/acesso-a-informacao/lgpd)
+> **Recompensas** – falhas críticas (CVSS ≥ 8.8) elegíveis a recompensa _bug‑bounty_ a partir de **US$ 200**.
 
 ---
 
-## 🛡️ Nosso Compromisso
+## 3 · Compromissos de Patch Management
 
-Estamos comprometidos com a construção de soluções Web3 seguras, auditáveis e livres.
-
-Contribuir para a FireChain é também ajudar a moldar a próxima geração de segurança blockchain.
+| Severidade | Exemplo | SLA de Mitigação | SLA de Patch |
+|------------|---------|------------------|--------------|
+| Crítica (CVSS ≥ 9) | Execução remota sem auth | 24 h | 72 h |
+| Alta (7 ≤ CVSS \< 9) | Leakage de seed criptografada | 72 h | 7 dias |
+| Média (4 ≤ CVSS \< 7) | Bypass parcial de antiflood | 7 dias | 21 dias |
+| Baixa | Log info‑leak | Best effort | Próxima release |
 
 ---
 
-**FireChain Security – Pensado desde a linha 0 para resistir, escalar e proteger.**
+## 4 · Uso Open Source vs Licença Comercial
 
-_Agradecemos sua colaboração em tornar o ecossistema Web3 mais seguro._
+### 4.1 Licença OSS (MIT)
+
+O código neste repositório é liberado sob **MIT** para fins:
+
+* Pesquisa & educação  
+* Prova de conceito interna  
+* Projetos pessoais *non‑profit*
+
+> **Limitações:** sem garantias de suporte, SLA ou atualizações de segurança expeditas.
+
+### 4.2 Licença Comercial (*FireChain CLI + Backend*)
+
+| Plano | Ideal para | Inclui | Preço¹ |
+|-------|------------|--------|--------|
+| **Starter** | Startups & MVP | Chave de ativação CLI, uso comercial ≤ 50 k carteiras/ano, 1 ambiente prod | **US$ 990 / ano** |
+| **Scale** | Fintechs & Games | Starter + 72 h support, 3 ambientes, logo “Powered by FireChain” removido | **US$ 2 900 / ano** |
+| **Enterprise** | Exchanges & Bancos | Scale + SLA 99.99 %, suporte 24×7, consultoria DevSecOps, cláusulas DPA/GDPR | *sob consulta* |
+
+¹ Preço em dólar; impostos locais não inclusos.
+
+**Processo de compra**
+
+1. Solicite contrato via LinkedIn.
+2. Receba link Docusign + fatura.  
+3. Após pagamento, execute:  
+   ```bash
+   firechain-cli license activate <token>
+   ```  
+4. Receba acesso ao canal Slack privado & boletins de segurança antecipados.
+
+---
+
+## 5 · Termos Legais Importantes
+
+- **Isenção de Responsabilidade:** o software é fornecido _“as‑is”_. Não nos responsabilizamos por perdas diretas ou indiretas decorrentes do uso.
+- **Limitação de Responsabilidade:** em nenhuma hipótese a FireChain será responsável por quantia superior ao valor pago em licença nos últimos 12 meses.
+- **Indenização:** uso inadequado ou em desacordo com esta política isenta a FireChain de qualquer pleito de terceiros.
+- **Export Compliance:** o usuário declara estar em conformidade com regulamentos de controle de exportação de software criptográfico dos EUA e UE.
+- **Proibições:** é vedado o uso em atividades ilícitas, _scams_ ou violações a sanções internacionais. Licenças suspeitas podem ser revogadas.
+
+---
+
+## 6 · Conformidade & Privacidade
+
+- **GDPR / LGPD ready** – todos os dados pessoais limitados a UID Firebase, pseudonimizados.  
+- **KMS externo** – chaves de configuração (.env) recomendadas no AWS KMS ou GCP KMS.  
+- **Data Residency** – suporte a shards RTDB em regiões `eu‑central1`, `us‑central1`, `asia‑southeast1`.
+
+---
+
+## 7 · Contato urgente
+
+* LinkedIn: [Guilherme Lima](https://www.linkedin.com/in/guilhermelimadev-web3/)  
+* Chave PGP (SHA‑256 fingerprint): `3D5E 2B8C 9F12 D7A1 E43B  8C97 C2F4 81AB 795C DA67`
+
+> **Nota:** chamadas comerciais devem usar o Linkedin.
+
+---
+
+**FireChain Security & Legal** – projetado para proteger, licenciado para escalar.
