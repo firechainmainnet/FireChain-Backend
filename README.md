@@ -5,11 +5,11 @@
 <p align="center">
   <img alt="Versão" src="https://img.shields.io/badge/vers%C3%A3o-2.0.3a-FF4500?style=for-the-badge">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-4CAF50?style=for-the-badge">
-  <img alt="Security" src="https://img.shields.io/snyk/vulnerabilities/github/firechain-labs/firechain-backend?style=for-the-badge">
+  <img alt="Security" src="https://img.shields.io/snyk/vulnerabilities/github/firechainmainnet/firechain-backend?style=for-the-badge">
   <img alt="Status" src="https://img.shields.io/badge/status-operational-brightgreen?style=for-the-badge">
-  <img alt="Stars" src="https://img.shields.io/github/stars/firechain-labs/firechain-backend?style=for-the-badge">
-  <img alt="Forks" src="https://img.shields.io/github/forks/firechain-labs/firechain-backend?style=for-the-badge">
-  <a href="https://gitpod.io/#/github.com/firechain-labs/firechain-backend">
+  <img alt="Stars" src="https://img.shields.io/github/stars/firechainmainnet/firechain-backend?style=for-the-badge">
+  <img alt="Forks" src="https://img.shields.io/github/forks/firechainmainnet/firechain-backend?style=for-the-badge">
+  <a href="https://gitpod.io/#/github.com/firechainmainnet/firechain-backend">
     <img alt="Gitpod" src="https://img.shields.io/badge/Try%20it%20on-Gitpod-%2303A9F4?style=for-the-badge">
   </a>
 </p>
@@ -172,7 +172,7 @@ Para **uso comercial** (exchanges, fintechs, DApps públicos) oferecemos:
 <summary>Detalhes</summary>
 
 ```bash
-git clone https://github.com/firechain-labs/firechain-backend.git
+git clone https://github.com/firechainmainnet/firechain-backend.git
 cd firechain-backend
 docker compose up -d
 ```
