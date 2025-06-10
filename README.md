@@ -4,13 +4,13 @@
 
 <p align="center">
   <img alt="Versão" src="https://img.shields.io/badge/vers%C3%A3o-2.0.3a-FF4500?style=for-the-badge">
-  <img alt="License" src="https://img.shields.io/badge/license-MIT-4CAF50?style=for-the-badge">
-  <img alt="Security" src="https://img.shields.io/snyk/vulnerabilities/github/firechainmainnet/firechain-backend?style=for-the-badge">
+  <img alt="Licença" src="https://img.shields.io/badge/license-MIT-4CAF50?style=for-the-badge">
+  <img alt="Segurança" src="https://img.shields.io/snyk/vulnerabilities/github/firechainmainnet/firechain-backend?style=for-the-badge">
   <img alt="Status" src="https://img.shields.io/badge/status-operational-brightgreen?style=for-the-badge">
-  <img alt="Stars" src="https://img.shields.io/github/stars/firechainmainnet/firechain-backend?style=for-the-badge">
-  <img alt="Forks" src="https://img.shields.io/github/forks/firechainmainnet/firechain-backend?style=for-the-badge">
+  <img alt="Estrelas" src="https://img.shields.io/github/stars/firechainmainnet/firechain-backend?style=for-the-badge">
+  <img alt="Bifurcações" src="https://img.shields.io/github/forks/firechainmainnet/firechain-backend?style=for-the-badge">
   <a href="https://gitpod.io/#/github.com/firechainmainnet/firechain-backend">
-    <img alt="Gitpod" src="https://img.shields.io/badge/Try%20it%20on-Gitpod-%2303A9F4?style=for-the-badge">
+    <img alt="Abrir no Gitpod" src="https://img.shields.io/badge/Try%20it%20on-Gitpod-%2303A9F4?style=for-the-badge">
   </a>
 </p>
 

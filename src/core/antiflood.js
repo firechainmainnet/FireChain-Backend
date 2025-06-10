@@ -1,4 +1,4 @@
-// src/lib/antiflood.js
+// src/core/antiflood.js
 
 const MAX_REQ_PER_WINDOW = 5;
 const WINDOW_MS = 10_000; // 10 segundos
