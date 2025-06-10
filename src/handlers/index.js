@@ -2,10 +2,7 @@
 import { sanitizeAll } from '../core/sanitizer.js';
 import {
   ensureUid,
-  ensurePassword,
-  ensureLabel,
-  ensureWalletId,
-  ensureHdIndex
+  ensureLabel
 } from '../core/validator.js';
 
 import { logInfo, logSuccess, logWarn, logError } from '../core/logger.js';
@@ -44,55 +41,6 @@ export async function processRequest(data, reqId) {
       return await atualizar(uid, nome, bio);
     }
 
-    case 'criar_wallet_random':
-    case 'criar_wallet_mnemonic12':
-    case 'criar_wallet_mnemonic24': {
-      const tipo = action.replace('criar_wallet_', '');
-      const senha = data.senha;
-      const label = sanitizeAll(data.label || 'default', 32);
-      ensurePassword(senha);
-      ensureLabel(label);
-      const { create } = await import('./wallet/create.js');
-      return await create(uid, tipo, senha, label);
-    }
-
-    case 'ver_wallet': {
-      const { walletId, senha } = data;
-      ensureWalletId(walletId);
-      ensurePassword(senha);
-      const { view } = await import('./wallet/view.js');
-      return await view(uid, walletId, senha);
-    }
-
-    case 'listar_wallets': {
-      const { list } = await import('./wallet/list.js');
-      return await list(uid);
-    }
-
-    case 'derivar_endereco': {
-      const { walletId, senha, index } = data;
-      ensureWalletId(walletId);
-      ensurePassword(senha);
-      ensureHdIndex(index);
-      const { derive } = await import('./wallet/derive.js');
-      return await derive(uid, walletId, senha, index);
-    }
-
-    case 'ver_derivada': {
-      const { walletId, index, senha } = data;
-      ensureWalletId(walletId);
-      ensureHdIndex(index);
-      ensurePassword(senha);
-      const { verDerivada } = await import('./wallet/ver_derivada.js');
-      return await verDerivada(uid, walletId, index, senha);
-    }
-
-    case 'ver_fingerprint': {
-      const { walletId } = data;
-      ensureWalletId(walletId);
-      const { verFingerprint } = await import('./wallet/ver_fingerprint.js');
-      return await verFingerprint(uid, walletId);
-    }
 
     default:
       logWarn(`Ação desconhecida: ${action}`, uid);

@@ -46,7 +46,6 @@ Você mantém o controle do código aberto; nós fornecemos **licenciamento come
 ## Visão Geral
 * **Zero‑REST** via Firebase RTDB  
 * **Fila** BullMQ + Redis  
-* **CLI Rust** (MIT) para wallet HD  
 * **Workers stateless** prontos para K8s  
 * **Logs imutáveis** por hash‑chain  
 * **Licença comercial opcional**  
@@ -98,34 +97,20 @@ Você mantém o controle do código aberto; nós fornecemos **licenciamento come
 | `criar_perfil` | Novo perfil | `{ nome }` | `{ success, uid }` |
 | `ver_perfil` | Detalhes do perfil | `{}` | `{ uid, nome, bio }` |
 | `atualizar_perfil` | Atualizar nome/bio | `{ nome?, bio? }` | `{ success }` |
-| `criar_wallet_random` | Wallet seed random | `{ senha, label }` | `{ walletId }` |
-| `criar_wallet_mnemonic12` | Wallet 12 palavras | idem | `{ mnemonic12 }` |
-| `criar_wallet_mnemonic24` | Wallet 24 palavras | idem | `{ mnemonic24 }` |
-| `ver_wallet` | Dados da wallet | `{ walletId, senha }` | `{ saldo, addrs } ` |
-| `listar_wallets` | Todas wallets | `{}` | `[{ walletId }]` |
-| `derivar_endereco` | Novo endereço HD | `{ walletId, senha, index }` | `{ address }` |
-| `ver_derivada` | Dados endereço HD | `{ walletId, index, senha }` | `{ address, txs }` |
-| `ver_fingerprint` | Fingerprint público | `{ walletId }` | `{ fingerprint }` |
 
 ---
 
 ## Exemplos de Uso
 ### Frontend (React + Firebase v9)
 ```ts
-// criar wallet 24 palavras
+// criar perfil
 await set(push(ref(db,"requests")), {
   uid:"user1",
-  action:"criar_wallet_mnemonic24",
-  payload:{ senha:"minha-senha", label:"Main" },
+  action:"criar_perfil",
+  payload:{ nome:"User" },
   ts:Date.now()
 });
 ```
-### CLI Wallet (open‑source MIT)
-```bash
-firechain-cli wallet derive -p "minha-senha" -i 1
-```
-
-<p align="center"><img src="./assets/demo-create-wallet.png" alt="Demo criar wallet" width="100%"></p>
 
 ---
 
@@ -193,9 +178,6 @@ docker compose up -d
 
 | Cenário | Ops/s (P95) | CPU/Worker | Mem |
 |---------|------------:|-----------:|----:|
-| Criar Wallet Mn24 | **1 020** | 35 % | 85 MB |
-| Derivar Endereço | **2 450** | 42 % | 92 MB |
-| Listar Wallets | **4 300** | 18 % | 70 MB |
 
 
 _Testes t3.medium (script `/benchmarks`)._
@@ -210,7 +192,6 @@ _Testes t3.medium (script `/benchmarks`)._
 | Métrica | SLA | SLO Interno |
 |---------|-----|-------------|
 | Disponibilidade Producer | 99.95 % | 99.99 % |
-| Latência P95 criar_wallet_mnemonic24 | ≤ 200 ms | 150 ms |
 | Recovery Redis | ≤ 60 s | 25 s |
 
 
@@ -220,8 +201,6 @@ _Testes t3.medium (script `/benchmarks`)._
 
 | Termo | Definição |
 |-------|-----------|
-| **HD Wallet** | Carteira determinística hierárquica. |
-| **Seed (mnemonic24)** | 24 palavras que geram infinitas chaves. |
 | **RTDB** | Realtime Database do Firebase. |
 | **BullMQ** | Fila distribuída baseada em Redis. |
 | **Worker stateless** | Processo que não guarda estado local. |
