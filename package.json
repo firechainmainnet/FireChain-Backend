@@ -1,0 +1,17 @@
+{
+  "name": "firechain-backend",
+  "version": "2.0.3a",
+  "type": "module",
+  "scripts": {
+    "start:producer": "node ./src/backend.js",
+    "start:worker": "node ./src/worker.js",
+    "start:workers": "node ./src/worker.js"
+  },
+  "dependencies": {
+    "bullmq": "^4.6.3",
+    "firebase-admin": "^11.10.1",
+    "dotenv": "^16.3.1",
+    "chalk": "^5.3.0",
+    "uuid": "^9.0.1"
+  }
+}

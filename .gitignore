@@ -18,6 +18,7 @@ npm-debug.log*
 *.tmp
 *.wallet
 *.json
+!package.json
 *.test.*
 firechain_backend_instructions.txt
 

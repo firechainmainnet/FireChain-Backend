@@ -5,7 +5,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const serviceAccountPath = path.join(__dirname, '../../AccountService.json');
+const serviceAccountPath = process.env.FIRECHAIN_SERVICE_ACCOUNT ||
+  path.join(__dirname, '../../AccountService.json');
 const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
 
 const app = admin.initializeApp({

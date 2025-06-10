@@ -26,7 +26,8 @@ npm install
 
 ## 🔐 Firebase Admin SDK
 
-Coloque o arquivo `AccountService.json` na raiz do projeto.  
+Coloque o arquivo `AccountService.json` na raiz do projeto
+ou defina a variável `FIRECHAIN_SERVICE_ACCOUNT` com o caminho absoluto.
 Este arquivo é fornecido pelo Firebase Console (Serviços > Contas de Serviço).
 
 ---
@@ -38,6 +39,7 @@ Crie um arquivo `.env` com o seguinte conteúdo:
 ```
 REDIS_HOST=127.0.0.1
 REDIS_PORT=6379
+FIRECHAIN_SERVICE_ACCOUNT=./AccountService.json
 ```
 
 ---
