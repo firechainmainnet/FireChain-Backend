@@ -22,11 +22,6 @@ tests/e2e/
 │   ├── criar_e_ver_perfil.test.js
 │   ├── ver_perfil.test.js
 │   └── atualizar_perfil.test.js
-├── wallet/
-│   ├── criar_wallet_mnemonic24.test.js
-│   ├── ver_wallet.test.js
-│   ├── derivar_endereco.test.js
-│   └── listar_wallets.test.js
 ```
 
 ---
@@ -35,10 +30,6 @@ tests/e2e/
 
 1. **criar_e_ver_perfil.test.js** → Cria perfil e valida integridade
 2. **atualizar_perfil.test.js** → Edita o perfil e verifica consistência
-3. **criar_wallet_mnemonic24.test.js** → Cria wallet HD de 24 palavras com senha
-4. **ver_wallet.test.js** → Descriptografa a wallet via senha
-5. **derivar_endereco.test.js** → Deriva endereço HD[1] e garante unicidade
-6. **listar_wallets.test.js** → Valida a listagem geral (vazia e com 1 wallet)
 
 ---
 
@@ -49,10 +40,6 @@ tests/e2e/
 | `criar_perfil`             | Criação com nome válido, erro por nome vazio                        |
 | `ver_perfil`               | UID inexistente (erro), UID válido (dados completos)                |
 | `atualizar_perfil`         | Alteração e validação refletida                                     |
-| `criar_wallet_mnemonic24`  | Sucesso com label + senha, falha sem perfil                         |
-| `ver_wallet`               | Descriptografar com senha, validar estrutura interna (mnemonic)     |
-| `derivar_endereco`         | Derivação HD[1], falha por índice já usado, erro sem senha          |
-| `listar_wallets`           | Lista vazia, lista com 1 wallet (validando campos e label)          |
 
 ---
 
@@ -61,7 +48,6 @@ tests/e2e/
 - Sanitização de entradas (`label`, `nome`, `senha`)
 - Verificação de duplicatas via fingerprint (RTDB)
 - Antiflood por UID e ação
-- Rejeição de índices HD já derivados
 
 ---
 

@@ -54,7 +54,6 @@ export async function clearAllFor(uid = lastTestUid) {
 
   await db.ref(`users/${uid}/responses`).remove();
   await db.ref(`users/${uid}/perfil`).remove();
-  await db.ref(`users/${uid}/wallets`).remove();
 }
 
 /**

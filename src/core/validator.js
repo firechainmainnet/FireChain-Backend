@@ -6,7 +6,6 @@
 
 const MAX_LABEL_LENGTH = 32;
 const MAX_UID_LENGTH = 128;
-const MAX_INDEX = 10000;
 
 /**
  * Garante que o valor é uma string não vazia
@@ -25,15 +24,6 @@ export function ensureString(field, value, min = 1, max = 256) {
 }
 
 /**
- * Garante que o índice HD é um número inteiro válido
- */
-export function ensureHdIndex(value) {
-  if (!Number.isInteger(value) || value < 0 || value > MAX_INDEX) {
-    throw new Error(`Índice HD inválido: ${value}`);
-  }
-}
-
-/**
  * Garante que um UID válido foi fornecido
  */
 export function ensureUid(value) {
@@ -45,16 +35,6 @@ export function ensureUid(value) {
  */
 export function ensurePassword(value) {
   ensureString('senha', value, 6, 256);
-}
-
-/**
- * Garante que um walletId é string simples (sem espaços, curto)
- */
-export function ensureWalletId(value) {
-  ensureString('walletId', value, 4, 128);
-  if (/\s/.test(value)) {
-    throw new Error("walletId não deve conter espaços");
-  }
 }
 
 /**

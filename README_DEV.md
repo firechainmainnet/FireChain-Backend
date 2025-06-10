@@ -82,8 +82,8 @@ Cada worker é independente e pode ser executado em máquinas diferentes.
 Todos os logs são coloridos e padronizados com timestamp + UID:
 
 ```
-[2025-05-24 14:13:22] ℹ️ INFO [UID:x9AZQ] Ação recebida: criar_wallet_random
-[2025-05-24 14:13:23] ✅ SUCESSO Wallet criada com sucesso: wallet123
+[2025-05-24 14:13:22] ℹ️ INFO [UID:x9AZQ] Ação recebida: criar_perfil
+[2025-05-24 14:13:23] ✅ SUCESSO Perfil criado com sucesso
 ```
 
 ---
@@ -96,20 +96,6 @@ Todos os logs são coloridos e padronizados com timestamp + UID:
 
 ---
 
-## 🧩 Integração com Fire-Wallet CLI
-
-O caminho do CLI deve ser configurado em `src/core/walletCli.js`:
-
-```js
-const CLI_PATH = 'C:/.../firechain_wallet.exe';
-```
-
-- A CLI deve estar compilada via:
-  ```bash
-  cargo build --release
-  ```
-
----
 
 ## 📚 Recursos úteis
 
